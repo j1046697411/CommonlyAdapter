@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.jzl.android.recyclerview.CommonlyAdapter;
+import org.jzl.android.recyclerview.CommonlyViewHolder;
 import org.jzl.android.recyclerview.R;
 import org.jzl.android.recyclerview.core.CAContext;
 import org.jzl.android.recyclerview.core.DataClassifier;
@@ -21,6 +22,7 @@ import org.jzl.android.recyclerview.data.DataBindingMatchPolicy;
 import org.jzl.android.recyclerview.data.DataManager;
 import org.jzl.android.recyclerview.data.DataManagerImpl;
 import org.jzl.android.recyclerview.data.DataSource;
+import org.jzl.android.recyclerview.data.model.CyModel;
 import org.jzl.android.recyclerview.listener.ListenerManagerImpl;
 import org.jzl.android.recyclerview.listener.OnAttachedToRecyclerViewListener;
 import org.jzl.android.recyclerview.listener.OnCreatedViewHolderListener;
@@ -38,7 +40,7 @@ public class AdapterConfigurator<T, VH extends RecyclerView.ViewHolder> extends 
     private ListenerManagerImpl<T, VH> listenerManager;
     private DataManager<T> dataManager;
 
-    public AdapterConfigurator(ViewHolderFactory<VH> viewHolderFactory, EntityFactory<T> entityFactory) {
+    protected AdapterConfigurator(ViewHolderFactory<VH> viewHolderFactory, EntityFactory<T> entityFactory) {
         super(ItemBindingMatchPolicy.MATCH_POLICY_ALL);
         this.itemViewManager = new ItemViewManagerImpl<>(viewHolderFactory);
         this.listenerManager = new ListenerManagerImpl<>();
@@ -152,6 +154,18 @@ public class AdapterConfigurator<T, VH extends RecyclerView.ViewHolder> extends 
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
         recyclerView.setAdapter(CommonlyAdapter.of(dataManager, itemViewManager, listenerManager));
 
+    }
+
+    public static <T, VH extends RecyclerView.ViewHolder> AdapterConfigurator<T, VH> of(ViewHolderFactory<VH> viewHolderFactory, EntityFactory<T> entityFactory) {
+        return new AdapterConfigurator<>(viewHolderFactory, entityFactory);
+    }
+
+    public static <VH extends RecyclerView.ViewHolder> AdapterConfigurator<CyModel, VH> of(ViewHolderFactory<VH> viewHolderFactory) {
+        return of(viewHolderFactory, (itemType, data) -> data instanceof CyModel ? (CyModel) data : new CyModel(data, itemType));
+    }
+
+    public static AdapterConfigurator<CyModel, CommonlyViewHolder> of() {
+        return of((itemView, viewType) -> new CommonlyViewHolder(itemView));
     }
 
 }

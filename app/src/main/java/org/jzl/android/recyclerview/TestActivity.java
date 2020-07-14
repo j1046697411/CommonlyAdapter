@@ -17,8 +17,7 @@ public class TestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
-        new AdapterConfigurator<>((itemView, viewType) -> new CommonlyViewHolder(itemView), (itemType, data) -> new CyModel(data, itemType))
-
+        AdapterConfigurator.of()
                 .createItemView(R.layout.item_test, 2)
                 .createItemView(R.layout.item_student_info, 1)
 
@@ -48,16 +47,16 @@ public class TestActivity extends AppCompatActivity {
                     dataSource.addAll(2, randStr(), randStr());
                 })
                 .<Student>dataBlock(PositionType.HEADER, 2, dataSource -> {
-                    dataSource.addAll(1 ,randStudent(), randStudent());
+                    dataSource.addAll(1, randStudent(), randStudent());
                 })
                 .<Student>dataBlock(PositionType.FOOTER, 3, dataSource -> {
                     dataSource.addAll(1, randStudent(), randStudent(), randStudent());
                 })
-                .dataBlock(PositionType.CONTENT, 3, dataSource->{
+                .dataBlock(PositionType.CONTENT, 3, dataSource -> {
                     Log.d("test", "dataSource:" + dataSource);
                     dataSource.addAll(1, randStudent(), randStudent(), randStudent());
                 })
-                .<String>dataBlock(PositionType.CONTENT, 2, dataSource->{
+                .<String>dataBlock(PositionType.CONTENT, 2, dataSource -> {
                     Log.d("test", "dataSource:" + dataSource);
                     dataSource.addAll(2, randStr(), randStr(), randStr());
                 })
@@ -72,7 +71,7 @@ public class TestActivity extends AppCompatActivity {
         return new CyModel(StringRandomUtils.randomLowerString(5), 2);
     }
 
-    private String randStr(){
+    private String randStr() {
         return StringRandomUtils.randomLowerString(5);
     }
 
