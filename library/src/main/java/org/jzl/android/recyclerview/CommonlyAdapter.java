@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.jzl.android.recyclerview.component.ComponentManager;
 import org.jzl.android.recyclerview.core.item.ItemViewManager;
 import org.jzl.android.recyclerview.data.DataManager;
 import org.jzl.android.recyclerview.data.DataProvider;
@@ -20,11 +21,13 @@ public class CommonlyAdapter<T, VH extends RecyclerView.ViewHolder> extends Recy
     private DataProvider<T> dataProvider;
     private ItemViewManager<T, VH> itemViewManager;
     private ListenerManager<T, VH> listenerManager;
+    private ComponentManager<T, VH> componentManager;
 
-    private CommonlyAdapter(DataProvider<T> dataProvider, ItemViewManager<T, VH> itemViewManager, ListenerManager<T, VH> listenerManager) {
+    protected CommonlyAdapter(DataProvider<T> dataProvider, ItemViewManager<T, VH> itemViewManager, ListenerManager<T, VH> listenerManager, ComponentManager<T, VH> componentManager) {
         this.dataProvider = ObjectUtils.requireNonNull(dataProvider, "dataProvider");
         this.itemViewManager = ObjectUtils.requireNonNull(itemViewManager, "itemViewManager");
         this.listenerManager = ObjectUtils.requireNonNull(listenerManager, "listenerManager");
+        this.componentManager = ObjectUtils.requireNonNull(componentManager, "componentManager");
     }
 
     @Override
@@ -115,8 +118,12 @@ public class CommonlyAdapter<T, VH extends RecyclerView.ViewHolder> extends Recy
         return listenerManager;
     }
 
-    public static <T, VH extends RecyclerView.ViewHolder> CommonlyAdapter<T, VH> of(DataManager<T> dataManager, ItemViewManager<T, VH> itemViewManager, ListenerManager<T, VH> listenerManager) {
-        return new CommonlyAdapter<>(dataManager, itemViewManager, listenerManager);
+    public ComponentManager<T, VH> getComponentManager() {
+        return componentManager;
+    }
+
+    public static <T, VH extends RecyclerView.ViewHolder> CommonlyAdapter<T, VH> of(DataManager<T> dataManager, ItemViewManager<T, VH> itemViewManager, ListenerManager<T, VH> listenerManager, ComponentManager<T, VH> componentManager) {
+        return new CommonlyAdapter<>(dataManager, itemViewManager, listenerManager,componentManager);
     }
 
 }

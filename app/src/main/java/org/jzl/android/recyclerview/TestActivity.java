@@ -9,6 +9,7 @@ import org.jzl.android.recyclerview.config.AdapterConfigurator;
 import org.jzl.android.recyclerview.core.PositionType;
 import org.jzl.android.recyclerview.data.DataBindingMatchPolicy;
 import org.jzl.android.recyclerview.data.model.CyModel;
+import org.jzl.lang.util.RandomUtils;
 import org.jzl.lang.util.StringRandomUtils;
 
 public class TestActivity extends AppCompatActivity {
@@ -60,6 +61,9 @@ public class TestActivity extends AppCompatActivity {
                     Log.d("test", "dataSource:" + dataSource);
                     dataSource.addAll(2, randStr(), randStr(), randStr());
                 })
+                .layoutManager(target -> {
+                    target.staggeredGridLayoutManager(2);
+                })
                 .attachToRecyclerView(findViewById(R.id.rv_test));
     }
 
@@ -72,7 +76,7 @@ public class TestActivity extends AppCompatActivity {
     }
 
     private String randStr() {
-        return StringRandomUtils.randomLowerString(5);
+        return StringRandomUtils.randomLowerString(RandomUtils.random(10, 100));
     }
 
     private Student randStudent() {
