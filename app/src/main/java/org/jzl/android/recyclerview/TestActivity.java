@@ -21,7 +21,6 @@ public class TestActivity extends AppCompatActivity {
         AdapterConfigurator.of()
                 .createItemView(R.layout.item_test, 2)
                 .createItemView(R.layout.item_student_info, 1)
-
                 .itemTypes(target -> (Student) target.getData(), (data, position) -> -1, 1)
                 .dataBinding((context, holder, data) -> holder
                         .provide()
