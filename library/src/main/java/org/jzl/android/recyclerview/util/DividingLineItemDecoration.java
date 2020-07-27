@@ -12,6 +12,7 @@ import org.jzl.lang.util.MathUtils;
 import org.jzl.lang.util.ObjectUtils;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class DividingLineItemDecoration extends RecyclerView.ItemDecoration {
     private static final String TAG = "DividingLineItemDecoration";
@@ -19,7 +20,7 @@ public class DividingLineItemDecoration extends RecyclerView.ItemDecoration {
     private final Rect dividingLine = new Rect();
     private final Rect temDividingLine = new Rect();
     private final int width;
-    private java.util.Map<Class<?>, LayoutManagerDividingLineCalculator<?>> dividingLineCalculators = new HashMap<>();
+    private Map<Class<?>, LayoutManagerDividingLineCalculator<?>> dividingLineCalculators = new HashMap<>();
 
     public DividingLineItemDecoration(int left, int top, int right, int bottom, int width) {
         dividingLine.set(

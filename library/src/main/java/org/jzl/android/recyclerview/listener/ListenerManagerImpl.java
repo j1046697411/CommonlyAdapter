@@ -7,6 +7,8 @@ import org.jzl.android.provider.ContextProvider;
 import org.jzl.android.recyclerview.CommonlyAdapter;
 import org.jzl.android.recyclerview.core.ObjectBinder;
 import org.jzl.android.recyclerview.core.item.ItemBindingMatchPolicy;
+import org.jzl.android.recyclerview.util.Binary;
+import org.jzl.lang.util.CollectionUtils;
 import org.jzl.lang.util.ObjectUtils;
 
 import java.util.ArrayList;
@@ -24,6 +26,9 @@ public class ListenerManagerImpl<T, VH extends RecyclerView.ViewHolder> implemen
     private final Set<OnAttachedToRecyclerViewListener<T, VH>> attachedToRecyclerViewListeners = new HashSet<>();
     private final Map<ItemBindingMatchPolicy, OnCreatedViewHolderListener<VH>> createdViewHolderListeners = new HashMap<>();
     private final Map<ItemBindingMatchPolicy, OnViewAttachedToWindowListener<VH>> viewAttachedToWindowListeners = new HashMap<>();
+    private final List<OnDetachedFromRecyclerViewListener> detachedFromRecyclerViewListeners = new ArrayList<>();
+    private final List<Binary<ItemBindingMatchPolicy, OnViewDetachedFromWindowListener<VH>>> viewDetachedFromWindowListeners = new ArrayList<>();
+    private OnFailedToRecycleViewListener<VH> failedToRecycleViewListener;
 
     @Override
     public void onAttachedToRecyclerView(@NonNull CommonlyAdapter<T, VH> adapter, @NonNull RecyclerView recyclerView) {
@@ -72,17 +77,24 @@ public class ListenerManagerImpl<T, VH extends RecyclerView.ViewHolder> implemen
 
     @Override
     public boolean onFailedToRecycleView(@NonNull VH holder) {
+        if (ObjectUtils.nonNull(failedToRecycleViewListener)) {
+            return failedToRecycleViewListener.onFailedToRecycleView(holder);
+        }
         return false;
     }
 
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-
+        CollectionUtils.each(this.detachedFromRecyclerViewListeners, target -> target.onDetachedFromRecyclerView(recyclerView));
     }
 
     @Override
     public void onViewDetachedFromWindow(@NonNull VH holder) {
-
+        CollectionUtils.each(this.viewDetachedFromWindowListeners, target -> {
+            if (target.one.match(holder.getItemViewType())) {
+                target.two.onViewDetachedFromWindow(holder);
+            }
+        });
     }
 
     @Override
@@ -114,6 +126,22 @@ public class ListenerManagerImpl<T, VH extends RecyclerView.ViewHolder> implemen
         if (ObjectUtils.nonNull(viewAttachedToWindowListener) && ObjectUtils.nonNull(matchPolicy)) {
             this.viewAttachedToWindowListeners.put(matchPolicy, viewAttachedToWindowListener);
         }
+    }
+
+    public void addOnDetachedFromRecyclerViewListener(OnDetachedFromRecyclerViewListener detachedFromRecyclerViewListener) {
+        if (ObjectUtils.nonNull(detachedFromRecyclerViewListener)) {
+            this.detachedFromRecyclerViewListeners.add(detachedFromRecyclerViewListener);
+        }
+    }
+
+    public void addOnViewDetachedFromWindowListener(OnViewDetachedFromWindowListener<VH> viewDetachedFromWindowListener, ItemBindingMatchPolicy matchPolicy) {
+        if (ObjectUtils.nonNull(viewDetachedFromWindowListener) && ObjectUtils.nonNull(matchPolicy)) {
+            this.viewDetachedFromWindowListeners.add(Binary.of(matchPolicy, viewDetachedFromWindowListener));
+        }
+    }
+
+    public void setFailedToRecycleViewListener(OnFailedToRecycleViewListener<VH> failedToRecycleViewListener) {
+        this.failedToRecycleViewListener = failedToRecycleViewListener;
     }
 
 }

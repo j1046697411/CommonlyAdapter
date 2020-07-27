@@ -28,7 +28,10 @@ import org.jzl.android.recyclerview.data.model.CyModel;
 import org.jzl.android.recyclerview.listener.ListenerManagerImpl;
 import org.jzl.android.recyclerview.listener.OnAttachedToRecyclerViewListener;
 import org.jzl.android.recyclerview.listener.OnCreatedViewHolderListener;
+import org.jzl.android.recyclerview.listener.OnDetachedFromRecyclerViewListener;
+import org.jzl.android.recyclerview.listener.OnFailedToRecycleViewListener;
 import org.jzl.android.recyclerview.listener.OnViewAttachedToWindowListener;
+import org.jzl.android.recyclerview.listener.OnViewDetachedFromWindowListener;
 import org.jzl.android.recyclerview.util.Binary;
 import org.jzl.lang.fun.Consumer;
 import org.jzl.lang.fun.Function;
@@ -131,6 +134,25 @@ public class AdapterConfigurator<T, VH extends RecyclerView.ViewHolder> extends 
 
     public AdapterConfigurator<T, VH> addOnViewAttachedToWindowListener(OnViewAttachedToWindowListener<VH> viewAttachedToWindowListener, int... itemTypes) {
         return addOnViewAttachedToWindowListener(viewAttachedToWindowListener, ItemBindingMatchPolicy.of(itemTypes));
+    }
+
+    public AdapterConfigurator<T, VH> addOnDetachedFromRecyclerViewListener(OnDetachedFromRecyclerViewListener detachedFromRecyclerViewListener) {
+        listenerManager.addOnDetachedFromRecyclerViewListener(detachedFromRecyclerViewListener);
+        return this;
+    }
+
+    public AdapterConfigurator<T, VH> addOnViewDetachedFromWindowListener(OnViewDetachedFromWindowListener<VH> viewDetachedFromWindowListener, ItemBindingMatchPolicy matchPolicy) {
+        listenerManager.addOnViewDetachedFromWindowListener(viewDetachedFromWindowListener, matchPolicy);
+        return this;
+    }
+
+    public AdapterConfigurator<T, VH> addOnViewDetachedFromWindowListener(OnViewDetachedFromWindowListener<VH> viewDetachedFromWindowListener, int... itemTypes) {
+        return addOnViewDetachedFromWindowListener(viewDetachedFromWindowListener, ItemBindingMatchPolicy.of(itemTypes));
+    }
+
+    public AdapterConfigurator<T, VH> setFailedToRecycleViewListener(OnFailedToRecycleViewListener<VH> failedToRecycleViewListener) {
+        listenerManager.setFailedToRecycleViewListener(failedToRecycleViewListener);
+        return this;
     }
 
     public AdapterConfigurator<T, VH> adapter(ObjectBinder<CommonlyAdapter<T, VH>> objectBinder) {
