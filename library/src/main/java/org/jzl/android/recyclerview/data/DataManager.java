@@ -5,7 +5,9 @@ import org.jzl.android.recyclerview.core.EntityFactory;
 import org.jzl.android.recyclerview.core.ObjectBinder;
 import org.jzl.android.recyclerview.core.PositionType;
 
-public interface DataManager<T> extends ObjectBinder<CommonlyAdapter<T, ?>>, DataProvider<T> , EntityFactory<T> {
+import java.util.List;
+
+public interface DataManager<T> extends ObjectBinder<CommonlyAdapter<T, ?>>, DataProvider<T>, EntityFactory<T> {
 
     @Override
     void bind(CommonlyAdapter<T, ?> target);
@@ -29,5 +31,15 @@ public interface DataManager<T> extends ObjectBinder<CommonlyAdapter<T, ?>>, Dat
 
     @Override
     DataBlock findDataBlock(int position);
+
+    void update();
+
+    List<T> snapshot();
+
+    void addDataUpdateListener(OnDataUpdateListener<T> dataUpdateListener);
+
+    interface OnDataUpdateListener<T> {
+        void onDataUpdate(List<T> oldData, List<T> newData);
+    }
 
 }

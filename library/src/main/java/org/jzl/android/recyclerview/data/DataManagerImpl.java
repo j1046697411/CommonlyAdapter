@@ -5,16 +5,30 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.jzl.android.recyclerview.CommonlyAdapter;
 import org.jzl.android.recyclerview.core.EntityFactory;
 import org.jzl.android.recyclerview.core.PositionType;
-import org.jzl.android.recyclerview.data.model.Typeable;
+import org.jzl.android.recyclerview.data.model.IdAble;
+import org.jzl.android.recyclerview.data.model.TypeAble;
+import org.jzl.android.recyclerview.util.Logger;
+import org.jzl.lang.util.CollectionUtils;
 import org.jzl.lang.util.ObjectUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class DataManagerImpl<T> implements DataManager<T> {
 
-    private Set<DataBlockImpl<?, T>> dataBlocks = new TreeSet<>();
-    private EntityFactory<T> entityFactory;
+    private static Logger LOG = Logger.logger(DataManagerImpl.class);
+
+    private final Set<DataBlockImpl<?, T>> dataBlocks = new TreeSet<>();
+    private final EntityFactory<T> entityFactory;
+
+    private final Set<OnDataUpdateListener<T>> dataUpdateListeners = new HashSet<>();
+
+    private boolean isDataUpdated = false;
+    private final List<T> oldData = new ArrayList<>();
 
     public DataManagerImpl(EntityFactory<T> entityFactory) {
         this.entityFactory = ObjectUtils.requireNonNull(entityFactory, "entityFactory");
@@ -27,49 +41,39 @@ public class DataManagerImpl<T> implements DataManager<T> {
 
     @Override
     public T getData(int position) {
-        int offsetPosition = position;
-        for (DataBlockImpl<?, T> dataBlock : this.dataBlocks) {
-            int size = dataBlock.dataSource.size();
-            if (offsetPosition >= size && dataBlock.display) {
-                offsetPosition -= size;
-            } else {
-                return dataBlock.dataSource.getEntity(offsetPosition);
-            }
-        }
-        throw new IndexOutOfBoundsException("position = " + position);
+        return getOldData().get(position);
     }
 
     @Override
     public int getDataCount() {
-        int count = 0;
-        for (DataBlockImpl<?, T> dataBlock : this.dataBlocks) {
-            if (dataBlock.display) {
-                count += dataBlock.dataSource.size();
-            }
-        }
-        return count;
+        return getOldData().size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        int offsetPosition = position;
-        for (DataBlockImpl<?, T> dataBlock : this.dataBlocks) {
-            int size = dataBlock.dataSource.size();
-            if (offsetPosition >= size && dataBlock.display) {
-                offsetPosition -= size;
-            } else {
-                T data = dataBlock.dataSource.getEntity(offsetPosition);
-                if (data instanceof Typeable) {
-                    return ((Typeable) data).getType();
+        T data = getData(position);
+        if (data instanceof TypeAble) {
+            return ((TypeAble) data).getType();
+        } else {
+            int offsetPosition = position;
+            for (DataBlockImpl<?, T> dataBlock : this.dataBlocks) {
+                int size = dataBlock.dataSource.size();
+                if (offsetPosition >= size && dataBlock.display) {
+                    offsetPosition -= size;
+                } else {
+                    return dataBlock.block;
                 }
-                return dataBlock.block;
             }
+            throw new IndexOutOfBoundsException("position = " + position);
         }
-        throw new IndexOutOfBoundsException("position = " + position);
     }
 
     @Override
     public long getItemId(int position) {
+        T data = getData(position);
+        if (data instanceof IdAble) {
+            return ((IdAble) data).getItemId();
+        }
         return RecyclerView.NO_ID;
     }
 
@@ -100,6 +104,43 @@ public class DataManagerImpl<T> implements DataManager<T> {
             }
         }
         return null;
+    }
+
+    @Override
+    public void update() {
+        List<T> oldData = new ArrayList<>(snapshot());
+        isDataUpdated = true;
+        LOG.d("update => old:" + oldData + "|" + snapshot());
+        CollectionUtils.each(this.dataUpdateListeners, target -> target.onDataUpdate(oldData, snapshot()));
+    }
+
+    private void updateOldData() {
+        if (isDataUpdated) {
+            oldData.clear();
+            for (DataBlockImpl<?, T> dataBlock : this.dataBlocks) {
+                oldData.addAll(dataBlock.dataSource.getData());
+            }
+            isDataUpdated = false;
+        }
+    }
+
+    private List<T> getOldData() {
+        updateOldData();
+        return oldData;
+    }
+
+    @Override
+    public List<T> snapshot() {
+        return Collections.unmodifiableList(getOldData());
+    }
+
+    @Override
+    public void addDataUpdateListener(OnDataUpdateListener<T> dataUpdateListener) {
+        this.dataUpdateListeners.add(dataUpdateListener);
+    }
+
+    public void removeDataUpdateListener(OnDataUpdateListener<T> dataUpdateListener) {
+        this.dataUpdateListeners.remove(dataUpdateListener);
     }
 
     public <E> DataSource<E> findDataSource(PositionType positionType, int block) {

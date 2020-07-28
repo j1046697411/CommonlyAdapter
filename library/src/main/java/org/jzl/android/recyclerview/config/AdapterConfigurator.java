@@ -8,6 +8,7 @@ import org.jzl.android.recyclerview.CommonlyViewHolder;
 import org.jzl.android.recyclerview.R;
 import org.jzl.android.recyclerview.component.Component;
 import org.jzl.android.recyclerview.component.ComponentManager;
+import org.jzl.android.recyclerview.component.DiffComponent;
 import org.jzl.android.recyclerview.component.LayoutManagerComponent;
 import org.jzl.android.recyclerview.core.CAContext;
 import org.jzl.android.recyclerview.core.DataClassifier;
@@ -24,7 +25,7 @@ import org.jzl.android.recyclerview.data.DataBindingMatchPolicy;
 import org.jzl.android.recyclerview.data.DataManager;
 import org.jzl.android.recyclerview.data.DataManagerImpl;
 import org.jzl.android.recyclerview.data.DataSource;
-import org.jzl.android.recyclerview.data.model.CyModel;
+import org.jzl.android.recyclerview.data.model.CAModel;
 import org.jzl.android.recyclerview.listener.ListenerManagerImpl;
 import org.jzl.android.recyclerview.listener.OnAttachedToRecyclerViewListener;
 import org.jzl.android.recyclerview.listener.OnCreatedViewHolderListener;
@@ -50,14 +51,15 @@ public class AdapterConfigurator<T, VH extends RecyclerView.ViewHolder> extends 
     protected AdapterConfigurator(ViewHolderFactory<VH> viewHolderFactory, EntityFactory<T> entityFactory) {
         super(ItemBindingMatchPolicy.MATCH_POLICY_ALL);
         this.itemViewManager = new ItemViewManagerImpl<>(viewHolderFactory);
-        this.listenerManager = new ListenerManagerImpl<>();
         this.dataManager = new DataManagerImpl<>(entityFactory);
         this.componentManager = new ComponentManager<>();
+        this.listenerManager = new ListenerManagerImpl<>(dataManager);
         init();
     }
 
     private void init() {
         component(LayoutManagerComponent.of());
+        component(DiffComponent.of());
     }
 
     public <E> AdapterConfigurator<T, VH> dataBlock(PositionType positionType, int block, ObjectBinder<DataSource<E>> objectBinder) {
@@ -150,10 +152,19 @@ public class AdapterConfigurator<T, VH extends RecyclerView.ViewHolder> extends 
         return addOnViewDetachedFromWindowListener(viewDetachedFromWindowListener, ItemBindingMatchPolicy.of(itemTypes));
     }
 
+    public AdapterConfigurator<T, VH> addOnDataUpdateListener(DataManager.OnDataUpdateListener<T> dataUpdateListener) {
+        listenerManager.addOnDataUpdateListener(dataUpdateListener);
+        return this;
+    }
+
     public AdapterConfigurator<T, VH> setFailedToRecycleViewListener(OnFailedToRecycleViewListener<VH> failedToRecycleViewListener) {
         listenerManager.setFailedToRecycleViewListener(failedToRecycleViewListener);
         return this;
     }
+
+    /******************* 监听者系统 end *******************/
+
+    /******************* 系统对象获取 start *******************/
 
     public AdapterConfigurator<T, VH> adapter(ObjectBinder<CommonlyAdapter<T, VH>> objectBinder) {
         listenerManager.addObjectBinder(objectBinder);
@@ -165,12 +176,13 @@ public class AdapterConfigurator<T, VH extends RecyclerView.ViewHolder> extends 
         return this;
     }
 
+    /******************* 系统对象获取 end *******************/
+
     @Override
     public <E> ItemTypeConfigurator<T, E, VH, AdapterConfigurator<T, VH>> itemTypes(Function<T, E> mapper, DataClassifier<E> dataClassifier, int... itemTypes) {
         return new ItemTypeConfigurator<>(mapper, ItemBindingMatchPolicy.of(itemTypes), this, dataClassifier);
     }
 
-    /******************* 监听者系统 end *******************/
 
     public AdapterConfigurator<T, VH> component(Component<T, VH> component, ItemBindingMatchPolicy matchPolicy) {
         componentManager.addComponent(component, matchPolicy);
@@ -188,9 +200,12 @@ public class AdapterConfigurator<T, VH extends RecyclerView.ViewHolder> extends 
 
     @SuppressWarnings("all")
     public AdapterConfigurator<T, VH> layoutManager(Consumer<LayoutManagerComponent<T, VH>> consumer) {
-        return component(LayoutManagerComponent.class, target -> {
-            consumer.accept(target);
-        });
+        return component(LayoutManagerComponent.class, consumer::accept);
+    }
+
+    @SuppressWarnings("all")
+    public AdapterConfigurator<T, VH> diff(Consumer<DiffComponent<T, VH>> consumer) {
+        return component(DiffComponent.class, consumer::accept);
     }
 
     public void attachToRecyclerView(RecyclerView recyclerView) {
@@ -212,11 +227,11 @@ public class AdapterConfigurator<T, VH extends RecyclerView.ViewHolder> extends 
         return new AdapterConfigurator<>(viewHolderFactory, entityFactory);
     }
 
-    public static <VH extends RecyclerView.ViewHolder> AdapterConfigurator<CyModel, VH> of(ViewHolderFactory<VH> viewHolderFactory) {
-        return of(viewHolderFactory, (itemType, data) -> data instanceof CyModel ? (CyModel) data : new CyModel(data, itemType));
+    public static <VH extends RecyclerView.ViewHolder> AdapterConfigurator<CAModel, VH> of(ViewHolderFactory<VH> viewHolderFactory) {
+        return of(viewHolderFactory, (itemType, data) -> data instanceof CAModel ? (CAModel) data : new CAModel(data, itemType, RecyclerView.NO_ID));
     }
 
-    public static AdapterConfigurator<CyModel, CommonlyViewHolder> of() {
+    public static AdapterConfigurator<CAModel, CommonlyViewHolder> of() {
         return of((itemView, viewType) -> new CommonlyViewHolder(itemView));
     }
 

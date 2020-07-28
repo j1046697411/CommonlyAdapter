@@ -1,5 +1,5 @@
 package org.jzl.android.recyclerview.data.model;
 
-public interface Typeable {
+public interface TypeAble {
     int getType();
 }

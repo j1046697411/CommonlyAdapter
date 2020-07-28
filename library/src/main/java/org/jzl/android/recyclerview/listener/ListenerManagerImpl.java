@@ -7,6 +7,7 @@ import org.jzl.android.provider.ContextProvider;
 import org.jzl.android.recyclerview.CommonlyAdapter;
 import org.jzl.android.recyclerview.core.ObjectBinder;
 import org.jzl.android.recyclerview.core.item.ItemBindingMatchPolicy;
+import org.jzl.android.recyclerview.data.DataManager;
 import org.jzl.android.recyclerview.util.Binary;
 import org.jzl.lang.util.CollectionUtils;
 import org.jzl.lang.util.ObjectUtils;
@@ -20,6 +21,8 @@ import java.util.Set;
 
 public class ListenerManagerImpl<T, VH extends RecyclerView.ViewHolder> implements ListenerManager<T, VH> {
 
+    private DataManager<T> dataManager;
+
     private final List<ObjectBinder<CommonlyAdapter<T, VH>>> objectBinders = new ArrayList<>();
     private final List<ObjectBinder<RecyclerView>> recyclerViewObjectBinders = new ArrayList<>();
 
@@ -29,6 +32,10 @@ public class ListenerManagerImpl<T, VH extends RecyclerView.ViewHolder> implemen
     private final List<OnDetachedFromRecyclerViewListener> detachedFromRecyclerViewListeners = new ArrayList<>();
     private final List<Binary<ItemBindingMatchPolicy, OnViewDetachedFromWindowListener<VH>>> viewDetachedFromWindowListeners = new ArrayList<>();
     private OnFailedToRecycleViewListener<VH> failedToRecycleViewListener;
+
+    public ListenerManagerImpl(DataManager<T> dataManager) {
+        this.dataManager = ObjectUtils.requireNonNull(dataManager, "dataManager");
+    }
 
     @Override
     public void onAttachedToRecyclerView(@NonNull CommonlyAdapter<T, VH> adapter, @NonNull RecyclerView recyclerView) {
@@ -138,6 +145,10 @@ public class ListenerManagerImpl<T, VH extends RecyclerView.ViewHolder> implemen
         if (ObjectUtils.nonNull(viewDetachedFromWindowListener) && ObjectUtils.nonNull(matchPolicy)) {
             this.viewDetachedFromWindowListeners.add(Binary.of(matchPolicy, viewDetachedFromWindowListener));
         }
+    }
+
+    public void addOnDataUpdateListener(DataManager.OnDataUpdateListener<T> dataUpdateListener){
+        this.dataManager.addDataUpdateListener(dataUpdateListener);
     }
 
     public void setFailedToRecycleViewListener(OnFailedToRecycleViewListener<VH> failedToRecycleViewListener) {
