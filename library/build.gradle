@@ -42,7 +42,7 @@ dependencies {
 
 }
 
-def siteUrl = 'https://github.com/j1046697411/CommonsApplication'  //github主页
+def siteUrl = 'https://github.com/j1046697411/CommonlyAdapter'  //github主页
 
 Properties properties = new Properties();
 properties.load(new FileInputStream(new File(rootDir, "local.properties")))
