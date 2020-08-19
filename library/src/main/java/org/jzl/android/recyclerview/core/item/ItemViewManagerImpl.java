@@ -1,94 +1,58 @@
 package org.jzl.android.recyclerview.core.item;
 
-import android.util.SparseArray;
+
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.jzl.android.recyclerview.R;
-import org.jzl.android.recyclerview.core.CAContext;
-import org.jzl.android.recyclerview.core.DataClassifier;
+import org.jzl.android.recyclerview.core.context.ItemContext;
+import org.jzl.android.recyclerview.core.ItemViewManager;
 import org.jzl.android.recyclerview.core.ViewHolderFactory;
-import org.jzl.android.recyclerview.data.DataProvider;
-import org.jzl.android.recyclerview.util.Binary;
-import org.jzl.android.util.SparseArrayUtils;
-import org.jzl.lang.util.ArrayUtils;
+import org.jzl.lang.util.CollectionUtils;
+import org.jzl.lang.util.ForeachUtils;
 import org.jzl.lang.util.ObjectUtils;
+import org.jzl.lang.util.holder.BinaryHolder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ItemViewManagerImpl<T, VH extends RecyclerView.ViewHolder> implements ItemViewManager<T, VH> {
 
-    private ViewHolderFactory<VH> viewHolderFactory;
-    private SparseArray<ItemViewFactory> itemViewFactories = new SparseArray<>();
+    private List<BinaryHolder<DataBindingMatchPolicy, DataBinder<T, VH>>> dataBinders = CollectionUtils.newArrayList();
+    private List<BinaryHolder<ItemBindingMatchPolicy, ItemViewFactory>> itemViewFactories = CollectionUtils.newArrayList();
 
-    private List<Binary<ItemBindingMatchPolicy, DataClassifier<T>>> dataClassifiers = new ArrayList<>();
-    private List<Binary<ItemBindingMatchPolicy, ItemBinder<T, VH>>> itemBinders = new ArrayList<>();
+    private ViewHolderFactory<VH> viewHolderFactory;
 
     public ItemViewManagerImpl(ViewHolderFactory<VH> viewHolderFactory) {
-        this.viewHolderFactory = viewHolderFactory;
+        this.viewHolderFactory = ObjectUtils.requireNonNull(viewHolderFactory, "viewHolderFactory");
     }
 
     @Override
     public VH onCreateViewHolder(LayoutInflater layoutInflater, ViewGroup parent, int viewType) {
-        ItemViewFactory itemViewFactory = itemViewFactories.get(viewType);
-        ObjectUtils.requireNonNull(itemViewFactory, "itemViewFactory: viewType = " + viewType);
-        return viewHolderFactory.createViewHolder(itemViewFactory.createItemView(layoutInflater, parent), viewType);
+        BinaryHolder<ItemBindingMatchPolicy, ItemViewFactory> binaryHolder = ForeachUtils.findByOne(this.itemViewFactories, target -> target.one.match(viewType));
+        ObjectUtils.requireNonNull(binaryHolder, "itemViewFactory(" + viewType + ")");
+        return viewHolderFactory.createViewHolder(binaryHolder.two.createItemView(layoutInflater, parent), viewType);
     }
 
     @Override
-    public void bindItemViewData(DataProvider.DataBlock dataBlock, VH holder, T data, List<Object> payloads) {
-        updateContext(dataBlock, holder, data, payloads);
-        for (Binary<ItemBindingMatchPolicy, ItemBinder<T, VH>> binary : this.itemBinders) {
-            if (binary.one.match(holder.getItemViewType())) {
-                binary.two.binding(holder, data, payloads);
+    public void bindItemViewData(ItemContext context, VH holder, T data) {
+        ForeachUtils.each(this.dataBinders, target -> {
+            if (target.one.match(context)) {
+                target.two.binding(holder, data);
             }
+        });
+    }
+
+    public void dataBinding(DataBinder<T, VH> dataBinder, DataBindingMatchPolicy matchPolicy) {
+        if (ObjectUtils.nonNull(dataBinder)) {
+            this.dataBinders.add(BinaryHolder.of(ObjectUtils.get(matchPolicy, DataBindingMatchPolicy.MATCH_POLICY_ALL), dataBinder));
         }
     }
 
-    private void updateContext(DataProvider.DataBlock dataBlock, VH holder, T data, List<Object> payloads) {
-        CAContext context = (CAContext) holder.itemView.getTag(R.id.tag_item_context);
-        DataClassifier<T> dataClassifier = findDataClassifier(holder.getItemViewType());
-        ObjectUtils.requireNonNull(dataClassifier, "dataClassifier");
-        if (ObjectUtils.isNull(context)) {
-            context = new CAContext();
-            holder.itemView.setTag(R.id.tag_item_context, context);
+    public void createItemView(ItemViewFactory itemViewFactory, ItemBindingMatchPolicy matchPolicy) {
+        if (ObjectUtils.nonNull(itemViewFactory)) {
+            this.itemViewFactories.add(BinaryHolder.of(ObjectUtils.get(matchPolicy, ItemBindingMatchPolicy.MATCH_POLICY_ALL), itemViewFactory));
         }
-        if (ObjectUtils.nonNull(dataClassifier)) {
-            context.dataType = dataClassifier.getDataType(data, holder.getAdapterPosition());
-        }
-        context.itemType = holder.getItemViewType();
-        context.payloads = payloads;
-        context.position = holder.getAdapterPosition();
-        context.positionType = dataBlock.getPositionType();
-        context.blockId = dataBlock.getBlockId();
-    }
-
-    private DataClassifier<T> findDataClassifier(int itemType) {
-        for (Binary<ItemBindingMatchPolicy, DataClassifier<T>> dataClassifierHolder : this.dataClassifiers) {
-            if (dataClassifierHolder.one.match(itemType)) {
-                return dataClassifierHolder.two;
-            }
-        }
-        return null;
-    }
-
-    public void addItemBinder(ItemBindingMatchPolicy matchPolicy, ItemBinder<T, VH> itemBinder) {
-        this.itemBinders.add(Binary.of(matchPolicy, itemBinder));
-    }
-
-    public void addItemViewFactory(ItemViewFactory itemViewFactory, int... itemTypes) {
-        if (ArrayUtils.isEmpty(itemTypes)) {
-            itemViewFactories.put(-1, itemViewFactory);
-        } else {
-            SparseArrayUtils.puts(this.itemViewFactories, itemViewFactory, itemTypes);
-        }
-    }
-
-    public void addDataClassifier(DataClassifier<T> dataClassifier, ItemBindingMatchPolicy matchPolicy) {
-        this.dataClassifiers.add(Binary.of(matchPolicy, dataClassifier));
     }
 
 }

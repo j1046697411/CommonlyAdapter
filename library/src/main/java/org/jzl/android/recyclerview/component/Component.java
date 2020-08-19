@@ -8,4 +8,5 @@ import org.jzl.android.recyclerview.core.item.ItemBindingMatchPolicy;
 public interface Component<T, VH extends RecyclerView.ViewHolder> {
 
     void apply(AdapterConfigurator<T, VH> configurator, ItemBindingMatchPolicy matchPolicy);
+
 }

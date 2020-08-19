@@ -2,14 +2,15 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "29.0.3"
+    buildToolsVersion "30.0.1"
 
     defaultConfig {
-        applicationId "org.jzl.android.recyclerview"
+        applicationId "org.jzl.android.recyclerview.app"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -27,17 +28,14 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation project(path: ':library')
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'org.jzl.lang:commons:0.0.2'
-    implementation 'org.jzl.android:android-commons:0.0.1'
-
-//    implementation 'jp.co.cyberagent.android:gpuimage:2.0.4'
-
+    implementation 'com.google.android.gms:play-services-ads:19.3.0'
+    implementation 'com.google.android.ads:mediation-test-suite:1.4.0'
+    implementation 'com.google.ads.mediation:vungle:6.7.0.0'
+    implementation 'com.google.ads.mediation:ironsource:6.18.0.0'
 }

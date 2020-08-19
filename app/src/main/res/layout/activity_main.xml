@@ -1,44 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F6F9FB"
-    android:orientation="vertical">
+    tools:context=".MainActivity">
 
     <LinearLayout
+        android:id="@+id/ll_header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_test"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="30dp" />
-
-        <Button
-            android:id="@+id/btn_unlock"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="解锁" />
-        <Button
-            android:id="@+id/btn_test"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="test" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_select_all"
+            android:text="切换选择状态"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_add"
+            android:text="添加"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_remove"
+            android:text="移除"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_random_remove"
+            android:text="随机移除"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/fl_mask"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_test"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ll_header" />
 
-        <ImageView
-            android:id="@+id/iv_mask_animation"
-            android:layout_width="wrap_content" android:contentDescription="TODO" 
-            android:layout_height="wrap_content" />
-    </FrameLayout>
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

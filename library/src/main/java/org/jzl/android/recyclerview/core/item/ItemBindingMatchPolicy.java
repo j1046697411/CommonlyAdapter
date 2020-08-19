@@ -8,8 +8,16 @@ public interface ItemBindingMatchPolicy {
 
     boolean match(int itemType);
 
+    default DataBindingMatchPolicy toDataBindingMatchPolicy(){
+        return context -> match(context.getItemViewType());
+    }
+
     static ItemBindingMatchPolicy of(int... itemTypes) {
-        return ArrayUtils.isEmpty(itemTypes) ? MATCH_POLICY_ALL : itemType -> ArrayUtils.contains(itemTypes, itemType);
+        if (ArrayUtils.nonEmpty(itemTypes)){
+            return ArrayUtils.isEmpty(itemTypes) ? MATCH_POLICY_ALL : itemType -> ArrayUtils.contains(itemTypes, itemType);
+        }else{
+            return MATCH_POLICY_ALL;
+        }
     }
 
 }

@@ -1,41 +1,36 @@
 package org.jzl.android.recyclerview.util;
 
-import android.util.Log;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-public class Logger {
+import org.jzl.android.recyclerview.BuildConfig;
 
-    private String tag;
+public interface Logger {
 
-    public static Logger logger(Class<?> type) {
-        return logger(type.getCanonicalName());
-    }
+    int v(@NonNull String msg);
 
-    public static Logger logger(String tag) {
-        return new Logger(tag);
-    }
+    int v(@Nullable String msg, @Nullable Throwable tr);
 
-    private Logger(String tag) {
-        this.tag = tag;
-    }
+    int d(@NonNull String msg);
 
-    public void d(String msg) {
-        Log.d(tag, msg);
-    }
+    int d(@Nullable String msg, @Nullable Throwable tr);
 
-    public void w(String msg){
-        Log.w(tag, msg);
-    }
+    int i(@NonNull String msg);
 
-    public void i(String msg){
-        Log.i(tag, msg);
-    }
+    int i(@Nullable String msg, @Nullable Throwable tr);
 
-    public void e(String msg){
-        Log.e(tag, msg);
-    }
+    int w(@NonNull String msg);
 
-    public void v(String msg){
-        Log.v(tag, msg);
+    int w(@Nullable String msg, @Nullable Throwable tr);
+
+    int w(@Nullable Throwable tr);
+
+    int e(@NonNull String msg);
+
+    int e(@Nullable String msg, @Nullable Throwable tr);
+
+    static Logger logger(Class<?> type) {
+        return BuildConfig.DEBUG ? new AndroidLogger(type.getSimpleName()) : new NullableLogger();
     }
 
 }
