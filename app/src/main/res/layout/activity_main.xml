@@ -1,49 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
-    <LinearLayout
-        android:id="@+id/ll_header"
+<layout>
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="match_parent"
+        tools:context=".MainActivity">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_select_all"
-            android:text="切换选择状态"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_add"
-            android:text="添加"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_remove"
-            android:text="移除"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_random_remove"
-            android:text="随机移除"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-    </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_header"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_test"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ll_header" />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_select_all"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="切换选择状态" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_add"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="添加" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_remove"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="移除" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_random_remove"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="随机移除" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_test"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ll_header" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
